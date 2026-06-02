@@ -610,15 +610,22 @@ void HmiThread::IdleLeds(int fps, const struct CRGB& idleColStart, const struct 
     CRGB beginColor = colors[colorIndex];
     CRGB endColor = colors[(colorIndex + 1) % ARRAY_SIZE(colors)];
     CRGB currentColor = blend(beginColor, endColor, progress);
-    for(int i = 0; i < NANO_LED_A_NUM + 8; i++ ) {
-    leds[i] = currentColor;
+
+    for (int i = 0; i < NANO_LED_A_NUM; i++) {
+        leds[i] = currentColor;
     }
+
+    for (int i = 0; i < NANO_LED_B_NUM; i++) {
+        ledsp[i] = currentColor;
+    }
+
     progress++;
     if (progress == 0) {  // Overflow, time to move to the next color
-    colorIndex = (colorIndex + 1) % ARRAY_SIZE(colors);
+        colorIndex = (colorIndex + 1) % ARRAY_SIZE(colors);
     }
+
     if(!com_thread.global_sleep_flag)
-    return;
+        return;
 }
 
 STUSB4500 usb_pd;

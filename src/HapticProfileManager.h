@@ -45,6 +45,7 @@ public:
     String profile_desc; // TODO max 50 characters
     int profile_type;    // TODO enum
     bool show_desc;
+    bool isFader = false;
 
     ledConfig led_config;
     hmiConfig hmi_config;

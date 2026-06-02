@@ -55,6 +55,8 @@ class ComThread : public Thread<ComThread> {
         void dispatchAudioConfig();
         void dispatchLcdConfig();
 
+        void setCurrentKnobPos(int16_t pos);
+
         String generateDescription(HapticProfile& curr);
 
         void sendError(String& error, String* msg = nullptr);

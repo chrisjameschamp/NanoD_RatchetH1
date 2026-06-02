@@ -77,6 +77,10 @@ void ComThread::run() {
               String* cmdstr = new String(cmd);
               foc_thread.put_motor_command(cmdstr);
             }
+            if (doc["level"] != nullptr) { // Added by champ to set position
+                int16_t pos = doc["level"].as<int16_t>();
+                setCurrentKnobPos(pos);
+            }
             v = doc["message"];
             if (v.is<String>()) { // its a message
               // send message to screen
@@ -569,3 +573,24 @@ void ComThread::dispatchLcdConfig() {
     cmd.data4 = nullptr;
     lcd_thread.put_lcd_command(cmd);
 };
+
+// Added by Champ
+void ComThread::setCurrentKnobPos(int16_t pos) {
+    HapticProfile* curr = HapticProfileManager::getInstance().getCurrentProfile();
+    if (!curr) return;
+
+    uint8_t keyState = hmi_thread.keyState;
+    curr->saved_knob_pos[keyState] = pos;
+
+    knobValue* knobConfig = nullptr;
+    for (int i = 0; i < curr->hmi_config.knob.num; i++) {
+        if (curr->hmi_config.knob.values[i].key_state == keyState) {
+            knobConfig = &curr->hmi_config.knob.values[i];
+            break;
+        }
+    }
+
+    if (knobConfig != nullptr) {
+        foc_thread.put_haptic_config(knobConfig->haptic, pos);
+    }
+}

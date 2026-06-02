@@ -74,6 +74,19 @@ nanod upload preset.yaml --activate --save
 - RGB LED ring
 - USB-C with MIDI, HID, and Serial
 
+## Differences From the Original Firmware
+
+This updated firmware keeps the original NanoD_RatchetH1 behavior and adds support for using the Nano_D++ as an external fader controller with connected desktop applications.
+
+- Adds `{"level": <position>}` serial command so connected applications can set the knob position.
+- Adds an `isFader` profile flag that is saved to profile JSON and included when profiles are exported over serial.
+- Displays fader profiles as dB values on the Nano screen instead of raw knob positions.
+- Maps fader display values from `-60.0 dB` to `+12.0 dB`.
+- Updates the value screen accent color from orange to blue.
+- Updates the large digit font glyphs to better support decimal and negative dB readouts.
+- Fixes the profile action parser comparison from `type="profiles"` to `type=="profiles"`.
+- Updates idle LED animation handling to write the main LED ring and button LEDs separately.
+
 ## License
 
 This project is licensed under the **GNU General Public License v3.0** (GPL-3.0). See [LICENSE](LICENSE) for details.

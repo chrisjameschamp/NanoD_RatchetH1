@@ -35,6 +35,7 @@ HapticProfile* HapticProfileManager::add(String name) {
       profiles[i].dirty = true;
       profiles[i].profile_desc = "";
       profiles[i].profile_tag = "";
+      profiles[i].isFader = false;
       profiles[i].led_config = ledConfig();
       profiles[i].hmi_config = hmiConfig(); // TODO init all fields explicitly
       profiles[i].audio_config.audio_file = hard_wav;
@@ -340,8 +341,9 @@ void HapticProfileManager::toSPIFFS() {
 
 
 HapticProfile::HapticProfile() {
-  profile_name = "";
-};
+    profile_name = "";
+    isFader = false;
+}
 
 
 
@@ -359,6 +361,7 @@ HapticProfile& HapticProfile::operator=(JsonObject& obj) {
   update_field(obj, name, profile_name);
   update_field(obj, desc, profile_desc);
   update_field(obj, profileTag, profile_tag);
+  update_field(obj, isFader, isFader);
   // led config fields
   update_field(obj, ledEnable, led_config.led_enable);
   update_field(obj, ledBrightness, led_config.led_brightness);
@@ -480,7 +483,7 @@ HapticProfile& HapticProfile::operator=(JsonObject& obj) {
           else
             hmi_config.knob.values[i].actions.ccw.type = keyActionType::KA_NONE;
         }
-        else if (type="profiles") {
+        else if (type=="profiles") {
           hmi_config.knob.values[i].type = knobValueType::KV_DEVICE_PROFILES;
           dirty = true;
           // TODO fields
@@ -586,6 +589,7 @@ void HapticProfile::toJSON(JsonObject& doc){
   doc["name"] = profile_name;
   doc["desc"] = profile_desc;
   doc["profileTag"] = profile_tag;
+  doc["isFader"] = isFader;
   // transfer led_config fields
   doc["ledEnable"] = led_config.led_enable;
   doc["ledBrightness"] = led_config.led_brightness;

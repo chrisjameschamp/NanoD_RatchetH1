@@ -162,6 +162,27 @@ if (lv_scr_act()==ui_profSelectScreen) // Profile Selection Screen
     }
 }
 
+static float pos_to_db(uint16_t pos, uint16_t end_pos) {
+    if (end_pos == 0) return -60.0f;
+
+    const float min_db = -60.0f;
+    const float max_db = 12.0f;
+
+    float normalized = (float)pos / (float)end_pos;   // 0.0 to 1.0
+    float db = min_db + normalized * (max_db - min_db); // -60 to +12
+
+    // 🔥 Fix negative zero
+    if (fabsf(db) < 0.05f) {
+        db = 0.0f;
+    }
+
+    return db;
+}
+
+static float db_to_linear_gain(float db) {
+    return powf(10.0f, db / 20.0f);
+}
+
 /*
     Tasker for Knob Position tracking - Updates every 16ms (60Hz)
     Screen: ui_valueScreen
@@ -181,8 +202,24 @@ static void counter_handler(lv_timer_t * postimer) {
     if (pos != last_pos) {
 
        if (lv_scr_act()==ui_valueScreen){
-           lv_label_set_text_fmt(ui_posind, "%d", pos);
-           lv_label_set_text_fmt(ui_posindSha, "%d", pos);
+            HapticProfile* current_profile = HapticProfileManager::getInstance().getCurrentProfile();
+
+            if (current_profile != nullptr && current_profile->isFader) {
+                float db = pos_to_db(pos, end_pos);
+
+                if (fabsf(db) < 0.05f) {
+                    db = 0.0f;
+                }
+
+                char buf[32];
+                snprintf(buf, sizeof(buf), "%.1f", db);
+
+                lv_label_set_text(ui_posind, buf);
+                lv_label_set_text(ui_posindSha, buf);
+            } else {
+                lv_label_set_text_fmt(ui_posind, "%d", pos);
+                lv_label_set_text_fmt(ui_posindSha, "%d", pos);
+            }
            if (start_pos != last_start_pos || end_pos != last_end_pos) {
                // LVGL arc requires min < max; ensure valid range
                if (start_pos < end_pos) {
